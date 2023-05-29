@@ -1,10 +1,9 @@
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.BDDMockito.any
+import org.mockito.BDDMockito.anyString
 import org.mockito.BDDMockito.given
 import org.mockito.Mockito.mock
+import java.util.ResourceBundle
 
 class RockPaperScissorsTest {
 
@@ -15,11 +14,13 @@ class RockPaperScissorsTest {
 
     private val gameConfig = mock<Config>()
 
+    private val resourceBundle = ResourceBundle.getBundle("game_ru_RU")
+
     init {
-        given(gameConfig.parse("../resources/config.txt")).willReturn(ConfigParsingCodes.SUCCESS)
+        given(gameConfig.parse(anyString())).willReturn(ConfigParsingCodes.SUCCESS)
     }
 
-    private val rockPaperScissors = RockPaperScissors(userPlayer, machinePlayer, gameConfig)
+    private val rockPaperScissors = RockPaperScissors(userPlayer, machinePlayer, gameConfig, resourceBundle)
 
     @Test
     fun `user should win and exit after first move`() {

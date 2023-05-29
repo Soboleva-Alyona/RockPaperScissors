@@ -4,7 +4,7 @@ interface Player {
 
     fun setConfig(config: Config)
 
-    fun makeMove() : String
+    fun makeMove(): String
 
     fun nextCommand(): String?
 

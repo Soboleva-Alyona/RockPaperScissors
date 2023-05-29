@@ -1,1 +1,1 @@
-class ConfigParsingException(message: String): Exception(message)
+class ConfigParsingException(message: String) : Exception(message)

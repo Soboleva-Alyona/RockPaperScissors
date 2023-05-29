@@ -1,22 +1,25 @@
+import java.util.*
+
 class RockPaperScissors(
     private val playerOne: Player, // user
     private val playerTwo: Player, // machine
     private val config: Config,
-    private val path: String? = null
+    private val resourceBundle: ResourceBundle,
+    private val path: String? = null,
 ) {
 
     private var gameScore: Pair<Int, Int> // user - machine
 
     init {
-        when(config.parse(getPath())) {
+        when (config.parse(getPath())) {
             ConfigParsingCodes.CONFLICTING_RULES -> {
-                throw ConfigParsingException("Conflicting rules in config")
+                throw ConfigParsingException(resourceBundle.getString("exception.ConflictingRules"))
             }
             ConfigParsingCodes.INCORRECT_FORMAT_OF_RULE -> {
-                throw ConfigParsingException("Incorrect format of rule in config")
+                throw ConfigParsingException(resourceBundle.getString("exception.IncorrectRuleFormat"))
             }
             ConfigParsingCodes.DUPLICATES -> {
-                throw ConfigParsingException("Duplicates found in figures list in config")
+                throw ConfigParsingException(resourceBundle.getString("exception.DuplicateRulesInConfig"))
             }
             ConfigParsingCodes.SUCCESS -> {
                 // do nothing
@@ -40,7 +43,9 @@ class RockPaperScissors(
     }
 
     private fun newMove() {
-        informBothPlayers(config.getAvailableFigures().joinToString(", ") + " раз-два-три")
+        informBothPlayers(
+            config.getAvailableFigures().joinToString(", ") + " " + resourceBundle.getString("game.OneTwoThree")
+        )
 
         val playerOneInput = playerOne.makeMove()
         if (shouldExitOrSkipToNextMove(playerOneInput)) return
@@ -49,34 +54,37 @@ class RockPaperScissors(
         if (shouldExitOrSkipToNextMove(playerTwoInput)) return
 
         if (!haveWinner(playerOneInput, playerTwoInput)) {
-            doNextMoveWithMessage(DRAW_RESULT)
+            doNextMoveWithMessage(resourceBundle.getString(DRAW_RESULT_CODE))
             return
         }
 
-        informBothPlayers("Счёт: ${playerOne.getPlayerName()} ${gameScore.first} - ${gameScore.second} ${playerTwo.getPlayerName()}")
-        informBothPlayers(SUGGEST_TO_CONTINUE_MESSAGE)
+        informBothPlayers(
+            resourceBundle.getString("game.Score") + " ${playerOne.getPlayerName()} ${gameScore.first} " +
+                    "- ${gameScore.second} ${playerTwo.getPlayerName()}"
+        )
+        informBothPlayers(resourceBundle.getString(SUGGEST_TO_CONTINUE_MESSAGE_CODE))
 
         while (true) {
             when (playerOne.nextCommand()) {
-                CONTINUE_COMMAND -> {
+                resourceBundle.getString(CONTINUE_COMMAND_CODE) -> {
                     when (playerTwo.nextCommand()) {
-                        CONTINUE_COMMAND -> {
+                        resourceBundle.getString(CONTINUE_COMMAND_CODE) -> {
                             newMove()
                             return
                         }
-                        EXIT_COMMAND -> {
+                        resourceBundle.getString(EXIT_COMMAND_CODE) -> {
                             return
                         }
                         else -> {
-                            playerTwo.setResponse(CONTINUE_OR_EXIT_COMMAND_EXPECTED)
+                            playerTwo.setResponse(resourceBundle.getString(CONTINUE_OR_EXIT_COMMAND_EXPECTED_CODE))
                         }
                     }
                 }
-                EXIT_COMMAND -> {
+                resourceBundle.getString(EXIT_COMMAND_CODE) -> {
                     return
                 }
                 else -> {
-                    playerOne.setResponse(CONTINUE_OR_EXIT_COMMAND_EXPECTED)
+                    playerOne.setResponse(resourceBundle.getString(CONTINUE_OR_EXIT_COMMAND_EXPECTED_CODE))
                 }
             }
         }
@@ -89,10 +97,10 @@ class RockPaperScissors(
     }
 
     private fun shouldExitOrSkipToNextMove(playerInput: String): Boolean {
-        if (playerInput == EXIT_COMMAND) {
+        if (playerInput == resourceBundle.getString(EXIT_COMMAND_CODE)) {
             return true
         }
-        if (playerInput == CONTINUE_COMMAND) {
+        if (playerInput == resourceBundle.getString(CONTINUE_COMMAND_CODE)) {
             newMove()
             return true
         }
@@ -110,13 +118,13 @@ class RockPaperScissors(
 
         if (config.firstWinsSecond(playerOneInput, playerTwoInput)) {
             gameScore = (gameScore.first + 1) to gameScore.second
-            playerOne.setResponse(WIN_RESULT)
-            playerTwo.setResponse(FAIL_RESULT)
+            playerOne.setResponse(resourceBundle.getString(WIN_RESULT_CODE))
+            playerTwo.setResponse(resourceBundle.getString(FAIL_RESULT_CODE))
             return true
         } else if (config.firstWinsSecond(playerTwoInput, playerOneInput)) {
             gameScore = gameScore.first to (gameScore.second + 1)
-            playerOne.setResponse(FAIL_RESULT)
-            playerTwo.setResponse(WIN_RESULT)
+            playerOne.setResponse(resourceBundle.getString(FAIL_RESULT_CODE))
+            playerTwo.setResponse(resourceBundle.getString(WIN_RESULT_CODE))
             return true
         }
 
@@ -129,23 +137,24 @@ class RockPaperScissors(
         return
     }
 
-    private fun unexpectedFiguresMessage() = "Unexpected figure in the input line. " +
-            "Available figures are: ${config.getAvailableFigures().joinToString(", ")}." +
-            "Try again"
+    private fun unexpectedFiguresMessage() =
+        resourceBundle.getString(UNEXPECTED_FIGURES_CODE) + " " + config.getAvailableFigures().joinToString(", ")
 
     companion object {
         private const val DEFAULT_CONFIG_PATH = "src/main/resources/config.txt"
 
-        const val CONTINUE_COMMAND = "ещё раз"
-        private const val EXIT_COMMAND = "выход"
+        const val CONTINUE_COMMAND_CODE = "game.ContinueCommand"
+        private const val EXIT_COMMAND_CODE = "game.ExitCommand"
 
-        private const val DRAW_RESULT = "ничья"
-        private const val WIN_RESULT = "вы победили"
-        private const val FAIL_RESULT = "вы проиграли"
-        private const val SUGGEST_TO_CONTINUE_MESSAGE =
-            "To continue playing type: $CONTINUE_COMMAND, to exit: $EXIT_COMMAND"
-        private const val CONTINUE_OR_EXIT_COMMAND_EXPECTED =
-            "Continue or exit command expected. Please type: $CONTINUE_COMMAND or $EXIT_COMMAND"
+        private const val DRAW_RESULT_CODE = "game.Draw"
+        private const val WIN_RESULT_CODE = "game.Win"
+        private const val FAIL_RESULT_CODE = "game.Fail"
+        private const val SUGGEST_TO_CONTINUE_MESSAGE_CODE =
+            "game.SuggestToContinueOrExit"
+        private const val CONTINUE_OR_EXIT_COMMAND_EXPECTED_CODE =
+            "game.ContinueOrExitCommandExpected"
+        private const val UNEXPECTED_FIGURES_CODE =
+            "game.UnexpectedFigures"
 
     }
 

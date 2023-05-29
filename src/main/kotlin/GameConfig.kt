@@ -1,7 +1,6 @@
 import java.io.File
-import java.util.*
 
-class GameConfig: Config {
+class GameConfig : Config {
 
     private lateinit var figuresSet: Set<String>
 
@@ -69,10 +68,6 @@ class GameConfig: Config {
         }
         if (rules[figureTwo]?.contains(figureOne) == true) {
             return ConfigParsingCodes.CONFLICTING_RULES
-//            throw InputMismatchException(incorrectInputOfRuleMessage(
-//                lineNumber,
-//                "Rule in the $lineNumber line conflicts with some previous rule")
-//            )
         }
 
         if (rules[figureOne] == null) {
@@ -82,15 +77,5 @@ class GameConfig: Config {
         }
         return ConfigParsingCodes.SUCCESS
     }
-
-    private fun incorrectInputOfRuleMessage(lineNumber: Int, additionalInfo: String = "") =
-        "Incorrect format of rule in string {$lineNumber}. The expected format is: A > B, " +
-                "where A and B are different figures from given set in the first line of config file. $additionalInfo"
-
-    companion object {
-        private const val INCORRECT_INPUT_OF_FIGURES_SET =
-            "There are duplicates of figures in config file. Please, check it and try again"
-    }
-
 
 }

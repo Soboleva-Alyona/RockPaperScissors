@@ -1,4 +1,9 @@
-class MachinePlayer(private val name: String): Player {
+import java.util.ResourceBundle
+
+class MachinePlayer(
+    private val name: String,
+    private val resourceBundle: ResourceBundle
+) : Player {
 
     private lateinit var config: Config
 
@@ -15,7 +20,7 @@ class MachinePlayer(private val name: String): Player {
     }
 
     override fun nextCommand(): String {
-        return RockPaperScissors.CONTINUE_COMMAND
+        return resourceBundle.getString("game.ContinueCommand")
     }
 
     override fun setResponse(message: String) {

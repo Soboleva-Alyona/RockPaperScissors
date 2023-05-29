@@ -1,4 +1,4 @@
-class UserPlayer(private val name: String): Player {
+class UserPlayer(private val name: String) : Player {
 
     override fun getPlayerName(): String {
         return name
